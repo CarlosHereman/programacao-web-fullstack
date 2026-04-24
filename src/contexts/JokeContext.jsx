@@ -62,4 +62,22 @@ function jokeReducer(state, action) {
   }
 }
 
+const JokeContext = createContext(null);
 
+export function JokeProvider({ children }) {
+  const [state, dispatch] = useReducer(jokeReducer, initialState);
+
+  return (
+    <JokeContext.Provider value={{ state, dispatch }}>
+      {children}
+    </JokeContext.Provider>
+  );
+}
+
+export function useJoke() {
+  const context = useContext(JokeContext);
+  if (!context) {
+    throw new Error("useJoke deve ser usado dentro de um JokeProvider");
+  }
+  return context;
+}
