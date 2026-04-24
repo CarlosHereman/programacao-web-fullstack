@@ -12,6 +12,7 @@ export default function App() {
         <main className="main">
           <div className="container">
             <SearchForm />
+            <JokeList />
           </div>
         </main>
         <Footer />
