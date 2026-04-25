@@ -1,16 +1,24 @@
-# React + Vite
+# Projeto JokeHub - Programação Web Fullstack
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Trabalho prático desenvolvido para a matéria de desenvolvimento fullstack. O objetivo é criar um buscador de piadas usando a JokeAPI, aplicando conceitos de React como Context API e useReducer.
 
-Currently, two official plugins are available:
+## Integrantes
+* Abner do Nascimento Santos
+* Carlos Eduardo Pires de Santana Hereman
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## O que foi usado no projeto
+* React com Vite
+* Context API + useReducer (para o estado global)
+* React Hook Form (para o formulário)
+* Axios (para as chamadas na API)
+* JokeAPI (fonte das piadas)
 
-## React Compiler
+## Estrutura de pastas
+O código fonte está organizado conforme o pedido:
+* src/components: Componentes e serviço da API.
+* src/contexts: Contexto global.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Como rodar
+1. Instale as dependências: npm install
+2. Rode o projeto: npm run dev
+3. Para o build final: npm run build
