@@ -2,28 +2,34 @@ import axios from "axios";
 
 const URL_BASE = "https://v2.jokeapi.dev/joke";
 
+/**
+ * Busca piadas na JokeAPI com base nos parâmetros fornecidos.
+ * Corrigido: Nomes das propriedades devem coincidir com o SearchForm.jsx
+ * e os parâmetros da URL devem coincidir com a documentação da JokeAPI.
+ */
 export async function fetchJokes({
-  categoria = "Any",
-  tipo = "",
+  category = "Any",
+  type = "",
   contains = "",
-  idioma = "pt",
-  quant = 1,
-  seguro = false,
+  lang = "en",
+  amount = 1,
+  safe = false,
 }) {
   const queryParams = new URLSearchParams();
 
-  if (idioma) queryParams.set("idioma", idioma);
-  if (quant && quant > 1) queryParams.set("quant", quant);
-  if (tipo) queryParams.set("tipo", tipo);
+  // Parâmetros oficiais da JokeAPI: lang, amount, type, contains, safe-mode
+  if (lang) queryParams.set("lang", lang);
+  if (amount && amount > 1) queryParams.set("amount", amount);
+  if (type) queryParams.set("type", type);
   if (contains && contains.trim() !== "") queryParams.set("contains", contains.trim());
-  if (seguro) queryParams.set("modo-seguro", "");
+  if (safe) queryParams.set("safe-mode", "");
 
-  const url = `${URL_BASE}/${categoria}?${queryParams.toString()}`;
+  const url = `${URL_BASE}/${category}?${queryParams.toString()}`;
 
   const res = await axios.get(url);
   const data = res.data;
 
-  // retorna { error: true } quando não encontra resultados
+  // A JokeAPI retorna { error: true } quando não encontra resultados
   if (data.error) {
     const mensagem =
       data.additionalInfo ||
