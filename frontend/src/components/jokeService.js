@@ -1,47 +1,47 @@
 import axios from "axios";
 
-const URL_BASE = "https://v2.jokeapi.dev/joke";
+const API_BASE = "http://localhost:3001/api";
 
-/**
- * Busca piadas na JokeAPI com base nos parâmetros fornecidos.
- * Corrigido: Nomes das propriedades devem coincidir com o SearchForm.jsx
- * e os parâmetros da URL devem coincidir com a documentação da JokeAPI.
- */
-export async function fetchJokes({
-  category = "Any",
-  type = "",
-  contains = "",
-  lang = "en",
-  amount = 1,
-  safe = false,
-}) {
+export async function fetchJokes(
+  { category = "Any", type = "", contains = "", lang = "en", amount = 1, safe = false },
+  token
+) {
   const queryParams = new URLSearchParams();
 
-  // Parâmetros oficiais da JokeAPI: lang, amount, type, contains, safe-mode
+  if (category) queryParams.set("category", category);
   if (lang) queryParams.set("lang", lang);
-  if (amount && amount > 1) queryParams.set("amount", amount);
+  if (amount && amount > 0) queryParams.set("amount", amount);
   if (type) queryParams.set("type", type);
   if (contains && contains.trim() !== "") queryParams.set("contains", contains.trim());
-  if (safe) queryParams.set("safe-mode", "");
+  if (safe) queryParams.set("safe", "true");
 
-  const url = `${URL_BASE}/${category}?${queryParams.toString()}`;
+  const url = `${API_BASE}/jokes?${queryParams.toString()}`;
 
-  const res = await axios.get(url);
-  const data = res.data;
+  const res = await axios.get(url, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 
-  // A JokeAPI retorna { error: true } quando não encontra resultados
-  if (data.error) {
-    const mensagem =
-      data.additionalInfo ||
-      data.message ||
-      "Nenhuma piada encontrada com os filtros selecionados.";
-    throw new Error(mensagem);
+  const { jokes } = res.data;
+
+  if (!jokes || jokes.length === 0) {
+    const err = new Error("Nenhuma piada encontrada com os filtros selecionados.");
+    err.isApiError = true;
+    throw err;
   }
 
-  // Quando a quantidade for maior que 1, a resposta vem em data.jokes. Se for 1, é um único objeto
-  if (data.jokes) {
-    return data.jokes;
-  }
+  return jokes;
+}
 
-  return [data];
+/**
+ * Insere uma nova piada no backend.
+ * Requer token JWT de autenticação.
+ */
+export async function insertJoke(joke, token) {
+  const res = await axios.post(`${API_BASE}/jokes`, joke, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+  return res.data;
 }
