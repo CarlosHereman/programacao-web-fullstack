@@ -2,6 +2,7 @@ import { useForm } from "react-hook-form";
 import { useJoke } from "../contexts/JokeContext";
 import { ACTIONS } from "../contexts/JokeContext";
 import { fetchJokes } from "./jokeService";
+import { useAuth } from "../contexts/AuthContext";
 
 const CATEGORIES = [
   { value: "Any", label: "Qualquer categoria" },
@@ -23,6 +24,7 @@ const LANGUAGES = [
 
 export default function SearchForm() {
   const { dispatch } = useJoke();
+  const { token } = useAuth();
 
   const {
     register,
@@ -47,18 +49,26 @@ export default function SearchForm() {
     });
 
     try {
-      const jokes = await fetchJokes({
-        category: data.category,
-        type: data.type,
-        contains: data.contains,
-        lang: data.lang,
-        amount: Number(data.amount),
-        safe: data.safe,
-      });
+      const jokes = await fetchJokes(
+        {
+          category: data.category,
+          type: data.type,
+          contains: data.contains,
+          lang: data.lang,
+          amount: Number(data.amount),
+          safe: data.safe,
+        },
+        token
+      );
 
       dispatch({ type: ACTIONS.FETCH_SUCCESS, payload: jokes });
     } catch (err) {
-      if (err.response) {
+      if (err.isApiError) {
+        dispatch({
+          type: ACTIONS.API_ERROR,
+          payload: err.message,
+        });
+      } else if (err.response) {
         dispatch({
           type: ACTIONS.API_ERROR,
           payload:
