@@ -22,3 +22,4 @@ O código fonte está organizado conforme o pedido:
 1. Instale as dependências: npm install
 2. Rode o projeto: npm run dev
 3. Para o build final: npm run build
+4. Caso esteja dando erro de versionamento com o SQLite que foi usado: npm rebuild better-sqlite3
