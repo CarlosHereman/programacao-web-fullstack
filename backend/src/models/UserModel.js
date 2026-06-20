@@ -1,7 +1,11 @@
 import { getDb } from "../config/database.js";
 
+/**
+ * Modelo de acesso ao banco de dados para a entidade User.
+ * Encapsula todas as queries SQL relacionadas a usuários.
+ */
 export const UserModel = {
-   /**
+  /**
    * Busca um usuário pelo nome de usuário.
    * @param {string} username
    * @returns {object|undefined}

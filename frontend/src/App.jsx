@@ -8,6 +8,10 @@ import InsertForm from "./components/InsertForm";
 import LoginForm from "./components/LoginForm";
 import Footer from "./components/Footer";
 
+/**
+ * Conteúdo principal da aplicação (exibido apenas para usuários autenticados).
+ * Gerencia a navegação entre as abas de Busca e Inserção.
+ */
 function AppContent() {
   const { isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState("search");
@@ -53,6 +57,10 @@ function AppContent() {
   );
 }
 
+/**
+ * Componente raiz da aplicação.
+ * Envolve tudo no AuthProvider para disponibilizar o contexto de autenticação.
+ */
 export default function App() {
   return (
     <AuthProvider>

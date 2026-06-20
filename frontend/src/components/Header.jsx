@@ -1,5 +1,9 @@
 import { useAuth } from "../contexts/AuthContext";
 
+/**
+ * Cabeçalho da aplicação.
+ * Exibe o nome do usuário logado e o botão de logout quando autenticado.
+ */
 export default function Header() {
   const { user, logout, isAuthenticated } = useAuth();
 

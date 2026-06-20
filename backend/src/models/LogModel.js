@@ -1,8 +1,12 @@
 import { getDb } from "../config/database.js";
 
+/**
+ * Modelo de acesso ao banco de dados para logs de segurança.
+ * Registra eventos de autenticação e atividades dos usuários.
+ */
 export const LogModel = {
   /**
-   * Registra um evento de autenticação 
+   * Registra um evento de autenticação (login bem-sucedido, falha, logout).
    * @param {object} entry - { username, event, ip }
    */
   logAuth({ username, event, ip }) {

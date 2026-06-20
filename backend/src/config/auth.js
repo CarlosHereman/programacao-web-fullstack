@@ -1,42 +1,64 @@
 import jwt from "jsonwebtoken";
-import { UserModel } from "../models/UserModel.js";
 import { LogModel } from "../models/LogModel.js";
-import dotenv from "dotenv";
 
-dotenv.config();
+// Conjunto em memória de tokens invalidados (blacklist para logout)
+const tokenBlacklist = new Set();
 
-const JWT_SECRET = process.env.JWT_SECRET;
-const TOKEN_BLACKLIST = new Set(); 
+/**
+ * Gera um token JWT para o usuário autenticado.
+ * @param {object} payload - { id, username }
+ * @returns {string}
+ */
+export function generateToken(payload) {
+  return jwt.sign(payload, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRES_IN || "2h",
+  });
+}
 
-export const generateToken = (user) => {
-  return jwt.sign({ id: user.id, username: user.username }, JWT_SECRET, { expiresIn: "2h" });
-};
+/**
+ * Invalida um token JWT (logout), adicionando-o à blacklist.
+ * @param {string} token
+ */
+export function invalidateToken(token) {
+  tokenBlacklist.add(token);
+}
 
-export const requireAuth = (req, res, next) => {
+/**
+ * Middleware de autenticação JWT.
+ * Verifica o token no header Authorization: Bearer <token>.
+ * Bloqueia requisições com tokens inválidos, expirados ou na blacklist.
+ */
+export function requireAuth(req, res, next) {
   const authHeader = req.headers.authorization;
 
-  if (!authHeader) {
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return res.status(401).json({ message: "Token de autenticação não fornecido." });
   }
 
   const token = authHeader.split(" ")[1];
 
-  if (TOKEN_BLACKLIST.has(token)) {
-    return res.status(401).json({ message: "Token inválido ou expirado." });
+  // Verifica se o token foi invalidado (logout)
+  if (tokenBlacklist.has(token)) {
+    return res.status(401).json({ message: "Sessão encerrada. Faça login novamente." });
   }
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded;
+    req.token = token;
     next();
-  } catch (error) {
-    if (error.name === "TokenExpiredError") {
-      return res.status(401).json({ message: "Token expirado." });
-    }
-    return res.status(401).json({ message: "Token inválido." });
-  }
-};
+  } catch (err) {
+    const message =
+      err.name === "TokenExpiredError"
+        ? "Token expirado. Faça login novamente."
+        : "Token inválido.";
 
-export const invalidateToken = (token) => {
-  TOKEN_BLACKLIST.add(token);
-};
+    LogModel.logAuth({
+      username: "unknown",
+      event: `TOKEN_INVALID: ${err.name}`,
+      ip: req.ip,
+    });
+
+    return res.status(401).json({ message });
+  }
+}

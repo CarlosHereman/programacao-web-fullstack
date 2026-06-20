@@ -8,9 +8,12 @@ import cache, { buildCacheKey } from "../config/cache.js";
 
 const router = Router();
 
+// Todas as rotas de piadas exigem autenticação
 router.use(requireAuth);
 
-// Rate limiting para buscas: máximo de 60 requisições por minuto por IP
+/**
+ * Rate limiting para buscas: máximo de 60 requisições por minuto por IP.
+ */
 const searchLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 60,
@@ -19,8 +22,9 @@ const searchLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-// Rate limiting para inserções: máximo de 20 inserções por minuto por IP.
-
+/**
+ * Rate limiting para inserções: máximo de 20 inserções por minuto por IP.
+ */
 const insertLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 20,
@@ -29,7 +33,11 @@ const insertLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-// GET /api/jokes
+/**
+ * GET /api/jokes
+ * Busca piadas no banco de dados com filtros opcionais.
+ * Implementa busca híbrida (local + JokeAPI externa).
+ */
 router.get(
   "/",
   searchLimiter,
@@ -95,7 +103,7 @@ router.get(
     }
 
     try {
-      
+      // Chama o método assíncrono que faz a busca híbrida
       const jokes = await JokeModel.findAll(filters);
 
       if (jokes.length === 0) {
@@ -120,7 +128,10 @@ router.get(
   }
 );
 
-// POST /api/jokes
+/**
+ * POST /api/jokes
+ * Insere uma nova piada no banco de dados.
+ */
 router.post(
   "/",
   insertLimiter,

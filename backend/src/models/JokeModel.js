@@ -3,9 +3,14 @@ import axios from "axios";
 
 const EXTERNAL_API_URL = "https://v2.jokeapi.dev/joke";
 
-
+/**
+ * Modelo de acesso ao banco de dados para a entidade Joke.
+ * Implementa busca híbrida: tenta localmente, se não encontrar, busca na JokeAPI externa.
+ */
 export const JokeModel = {
-  //Busca piadas localmente
+  /**
+   * Busca piadas localmente.
+   */
   findLocal({ category, type, lang, contains, safe, amount } = {}) {
     const db = getDb();
     let sql = "SELECT * FROM jokes WHERE 1=1";
@@ -32,7 +37,8 @@ export const JokeModel = {
       sql += " AND safe = 1";
     }
 
-    sql += " ORDER BY RANDOM()"; 
+    sql += " ORDER BY RANDOM()"; // Aleatório para variar os resultados locais
+
     if (amount && Number(amount) > 0) {
       sql += " LIMIT ?";
       params.push(Number(amount));
@@ -41,7 +47,9 @@ export const JokeModel = {
     return db.prepare(sql).all(...params);
   },
 
-  //Busca piadas na JokeAPI externa e as salva no banco local
+  /**
+   * Busca piadas na JokeAPI externa e as salva no banco local.
+   */
   async fetchExternal({ category = "Any", type, lang = "en", contains, safe, amount = 1 }) {
     try {
       const queryParams = new URLSearchParams();
@@ -62,7 +70,7 @@ export const JokeModel = {
 
       // Salva as piadas externas no banco local para futuras buscas
       for (const j of externalJokes) {
-        // Verifica se já existe para evitar duplicatas
+        // Verifica se já existe para evitar duplicatas (busca por texto/setup)
         const db = getDb();
         const existing = db.prepare("SELECT id FROM jokes WHERE (joke = ? AND joke IS NOT NULL) OR (setup = ? AND setup IS NOT NULL)").get(j.joke || null, j.setup || null);
         
@@ -78,6 +86,7 @@ export const JokeModel = {
             created_by: 1 // Atribuído ao usuário 'admin' (ID 1)
           });
           
+          // Busca a piada recém criada para retornar o objeto completo
           const newJoke = this.findById(result.id);
           savedJokes.push(newJoke);
         } else {
@@ -92,12 +101,14 @@ export const JokeModel = {
     }
   },
 
-
+  /**
+   * Método principal de busca: tenta local, se falhar ou for pouco, tenta externa.
+   */
   async findAll(filters) {
-    // Tenta buscar no banco local
+    // 1. Tenta buscar no banco local
     let results = this.findLocal(filters);
 
-    // Se não encontrou nada localmente, busca na API externa
+    // 2. Se não encontrou nada localmente, busca na API externa
     if (results.length === 0) {
       results = await this.fetchExternal(filters);
     }

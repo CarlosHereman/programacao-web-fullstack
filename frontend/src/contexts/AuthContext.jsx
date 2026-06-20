@@ -5,6 +5,11 @@ const API_BASE = "http://localhost:3001/api";
 
 const AuthContext = createContext(null);
 
+/**
+ * Provedor de autenticação. Gerencia o token JWT e os dados do usuário logado.
+ * O token é armazenado em memória (state) para evitar vulnerabilidades de XSS
+ * associadas ao localStorage.
+ */
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
@@ -21,6 +26,9 @@ export function AuthProvider({ children }) {
     setUser(res.data.user);
   }, []);
 
+  /**
+   * Realiza o logout do usuário, invalidando o token no servidor e limpando o estado.
+   */
   const logout = useCallback(async () => {
     if (token) {
       try {

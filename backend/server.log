@@ -1,0 +1,6 @@
+◇ injected env (5) from .env // tip: ⌘ suppress logs { quiet: true }
+◇ injected env (0) from .env // tip: ⌘ suppress logs { quiet: true }
+◇ injected env (0) from .env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+[SERVER] JokeHub Backend rodando na porta 3001
+[SERVER] Ambiente: development
+[SERVER] API disponível em http://localhost:3001/api

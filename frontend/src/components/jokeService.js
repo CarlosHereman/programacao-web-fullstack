@@ -2,6 +2,10 @@ import axios from "axios";
 
 const API_BASE = "http://localhost:3001/api";
 
+/**
+ * Busca piadas no backend próprio da aplicação.
+ * Requer token JWT de autenticação.
+ */
 export async function fetchJokes(
   { category = "Any", type = "", contains = "", lang = "en", amount = 1, safe = false },
   token
